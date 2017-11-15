@@ -2,7 +2,7 @@
 Public searchTerm
 
 
-
+Public Browser
 Public gCurrentStep
 
 Public sLastScenario,iLastScenarioStatus
@@ -86,17 +86,15 @@ Sub ReadFeatureFile(strFileName)
 	sLastScenario=""
 	iLastScenarioStatus=0  '0 Fail, 1 Pass, 2 Pending
 	
-
-	
 	While Not objFile.AtEndOfStream
 		Line = Replace(Trim(objFile.ReadLine),vbTab,"")
 		If Line<>"" Then
 			Select Case Split(Line," ")(0)
 				Case "Feature:":
-					Print Line
-					'Write the Feature name to the result file now
-					Reporter.ReportHTMLEvent micDone, "<span style='line-height:40px;width:100%;background-color:white;  padding-left:10px;color:black;font-size:20px;font-weight:bold;'>"& Line & "</span>", Line
-					'sResultFeed=sResultFeed &vbLf & "<div class='feature_heading'>"& Line &"</div>"
+				Print Line
+				'Write the Feature name to the result file now
+				Reporter.ReportHTMLEvent micDone, "<span style='line-height:40px;width:100%;background-color:clear;  padding-left:10px;color:black;font-size:20px;font-weight:bold;'>"& Line & "</span>", Line
+				'sResultFeed=sResultFeed &vbLf & "<div class='feature_heading'>"& Line &"</div>"
 				Case "Given":
 								gCurrentStep = "Given"
 								ExecuteStep(Line)
@@ -124,7 +122,7 @@ Sub ReadFeatureFile(strFileName)
 					End If
 					
 					'Now we deal with this particular Scenario
-				
+					'clear the array of steps 
 					aLastScenarioSteps=Array()
 					
 					
@@ -153,35 +151,36 @@ Sub ReadFeatureFile(strFileName)
 	Set objFile = Nothing
 End Sub
 
-
-
 '**********************************************************************************
 ' The functions are part of cucumber.vbs to understand and execute the gherkin commands
 '
 '
 '
-
-
-
 'Execute the steps or generate templates
+
 Sub ExecuteStep(StrStep) 
 	iSteps=iSteps+1
 	Print "  " & StrStep
 	On Error Resume Next
 	Func=GenerateFuncWithArgs(StrStep)
 	Execute Func
-	If Err.Number=13 Then
-		iLastScenarioStatus=3
-		
-		iUndefined=iUndefined+1
-		iUndefinedForThisScenario=iUndefinedForThisScenario+1
-		sUndefinedSnippets=sUndefinedSnippets &vbLf& "Sub "& GenerateFuncDefWithArgs(StrStep) &vbLf &vbTab &"'Your code here" &vbLf& "End Sub" &vbLf
-		'sResultFeed=sResultFeed &vbLf & "<div class='step_undefined'>"& strStep &"</div>"
-		
-		ReDim Preserve aLastScenarioSteps(UBound(aLastScenarioSteps) + 1)
-		aLastScenarioSteps(UBound(aLastScenarioSteps)) = Array(3,StrStep,sUndefinedSnippets)
-	
-	
+	If Err Then
+		If Err.Number=13 Then
+			iLastScenarioStatus=3
+			
+			iUndefined=iUndefined+1
+			iUndefinedForThisScenario=iUndefinedForThisScenario+1
+			sUndefinedSnippets=sUndefinedSnippets &vbLf& "Sub "& GenerateFuncDefWithArgs(StrStep) &vbLf &vbTab &"'Your code here" &vbLf& "End Sub" &vbLf
+			'sResultFeed=sResultFeed &vbLf & "<div class='step_undefined'>"& strStep &"</div>"
+			
+			ReDim Preserve aLastScenarioSteps(UBound(aLastScenarioSteps) + 1)
+			aLastScenarioSteps(UBound(aLastScenarioSteps)) = Array(3,StrStep,sUndefinedSnippets)
+		Else
+			iLastScenarioStatus=1
+			ReDim Preserve aLastScenarioSteps(UBound(aLastScenarioSteps) + 1)
+			aLastScenarioSteps(UBound(aLastScenarioSteps)) = Array(1,StrStep,Func & " " & Err.Description)
+			
+		End If
 	End If
 	On Error Goto 0
 End Sub
