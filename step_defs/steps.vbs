@@ -1,5 +1,9 @@
-Sub Given_a_client_that_has_a_name_as_and(Arg1,Arg2)
-msgbox Arg1
-msgbox Arg2
-
+Sub Given_the_search_term(Arg1)
+	searchTerm=Arg1
 End Sub
+
+Sub When_i_navigate_to(Arg1)
+	msgBox "Navigating to " & Arg1
+	msgBox searchTerm
+End Sub
+

@@ -1,10 +1,8 @@
 Feature: This feature is to test the cucumber implementation done for the QTP tool
 
 Scenario: This is the first sample scenario being run
-Given a client that has a name as "testklant" and "me"
-When I see that this scenario is running
-And I click on "Login" button
-Then I know that my parser is working
+Given the search term "cats" 
+When I navigate to "www.google.in"
 
 Scenario: This is the second sample scenario being run
 Given I have some "value" given here
